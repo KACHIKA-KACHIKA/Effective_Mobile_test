@@ -1,0 +1,107 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-4">
+  <h1>Предложения обмена</h1>
+
+  <form method="get" class="row g-3 mb-3">
+    <input type="hidden" name="type" value="{{ view_type }}">
+    <div class="col-md-3">
+      <input
+        type="text"
+        name="sender"
+        value="{{ sender }}"
+        class="form-control"
+        placeholder="Отправитель (username)">
+    </div>
+    <div class="col-md-3">
+      <input
+        type="text"
+        name="receiver"
+        value="{{ receiver }}"
+        class="form-control"
+        placeholder="Получатель (username)">
+    </div>
+    <div class="col-md-3">
+      <select name="status" class="form-select">
+        <option value="">Все статусы</option>
+        {% for code,label in status_choices %}
+          <option value="{{ code }}" {% if code == status %}selected{% endif %}>
+            {{ label }}
+          </option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-md-3">
+      <button type="submit" class="btn btn-primary w-100">Применить фильтры</button>
+    </div>
+  </form>
+
+  <div class="mb-3">
+    <a href="{% url 'proposal_list' %}?type=all"
+       class="btn btn-outline-primary {% if view_type == 'all' %}active{% endif %}">
+      Все
+    </a>
+    <a href="{% url 'proposal_list' %}?type=sent"
+       class="btn btn-outline-primary {% if view_type == 'sent' %}active{% endif %}">
+      Отправленные
+    </a>
+    <a href="{% url 'proposal_list' %}?type=received"
+       class="btn btn-outline-primary {% if view_type == 'received' %}active{% endif %}">
+      Полученные
+    </a>
+  </div>
+
+  {% for p in proposals %}
+    <div class="card mb-2">
+      <div class="card-body">
+        <h5 class="card-title">
+          {{ p.ad_sender.title }} → {{ p.ad_receiver.title }}
+        </h5>
+        <p class="card-text">{{ p.comment|truncatechars:100 }}</p>
+        <p class="small text-muted">
+          Статус:
+          {% if p.status == 'waiting' %}
+            <span class="badge bg-warning">Ожидает</span>
+          {% elif p.status == 'accepted' %}
+            <span class="badge bg-success">Принята</span>
+          {% elif p.status == 'rejected' %}
+            <span class="badge bg-danger">Отклонена</span>
+          {% endif %}
+          | Дата: {{ p.created_at|date:"d.m.Y H:i" }}
+        </p>
+        <a href="{% url 'proposal_detail' p.pk %}"
+           class="btn btn-sm btn-outline-secondary">Подробнее</a>
+      </div>
+    </div>
+  {% empty %}
+    <p>Нет предложений.</p>
+  {% endfor %}
+  {% if is_paginated %}
+  <nav aria-label="Пагинация">
+    <ul class="pagination">
+      {% with base="type="|add:view_type|add:"&sender="|add:sender|add:"&receiver="|add:receiver|add:"&status="|add:status %}
+      {% if page_obj.has_previous %}
+        <li class="page-item">
+          <a class="page-link"
+             href="?page={{ page_obj.previous_page_number }}&{{ base }}">«</a>
+        </li>
+      {% endif %}
+      {% for num in page_obj.paginator.page_range %}
+        <li class="page-item {% if num == page_obj.number %}active{% endif %}">
+          <a class="page-link"
+             href="?page={{ num }}&{{ base }}">{{ num }}</a>
+        </li>
+      {% endfor %}
+      {% if page_obj.has_next %}
+        <li class="page-item">
+          <a class="page-link"
+             href="?page={{ page_obj.next_page_number }}&{{ base }}">»</a>
+        </li>
+      {% endif %}
+      {% endwith %}
+    </ul>
+  </nav>
+  {% endif %}
+
+</div>
+{% endblock %}

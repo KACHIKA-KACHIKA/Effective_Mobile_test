@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-4">
+  <h1>{{ ad.title }}</h1>
+
+  {% if ad.image_url %}
+    <img src="{{ ad.image_url }}" class="img-fluid mb-3" alt="{{ ad.title }}">
+  {% endif %}
+
+  <p>{{ ad.description }}</p>
+
+  <ul class="list-inline">
+    <li class="list-inline-item"><strong>Категория:</strong> {{ ad.category }}</li>
+    <li class="list-inline-item"><strong>Состояние:</strong> {{ ad.get_condition_display }}</li>
+    <li class="list-inline-item"><strong>Размещено:</strong> {{ ad.created_at|date:"d.m.Y H:i" }}</li>
+    <li class="list-inline-item"><strong>Автор:</strong> {{ ad.user.username }}</li>
+  </ul>
+
+  <div class="mt-3">
+    {% if user == ad.user %}
+      <a href="{% url 'ad_update' ad.pk %}" class="btn btn-secondary">Редактировать</a>
+      <a href="{% url 'ad_delete' ad.pk %}" class="btn btn-danger">Удалить</a>
+    {% elif user.is_authenticated %}
+      <a href="{% url 'proposal_create' ad.pk %}" class="btn btn-success">Предложить обмен</a>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

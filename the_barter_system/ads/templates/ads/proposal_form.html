@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% block content %}
+<div class="container mt-4" style="max-width: 600px;">
+  <h1>Предложить обмен по объявлению «{{ target_ad.title }}»</h1>
+  <form method="post" novalidate>
+    {% csrf_token %}
+    {{ form|crispy }}
+    <button type="submit" class="btn btn-success mt-3">Отправить предложение</button>
+  </form>
+</div>
+{% endblock %}

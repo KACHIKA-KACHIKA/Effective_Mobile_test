@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-4">
+  <h1>Предложение обмена</h1>
+
+  <ul class="list-group mb-3">
+    <li class="list-group-item">
+      <strong>От:</strong> {{ proposal.ad_sender.title }} &mdash;
+      {{ proposal.ad_sender.user.username }}
+    </li>
+    <li class="list-group-item">
+      <strong>Кому:</strong> {{ proposal.ad_receiver.title }} &mdash;
+      {{ proposal.ad_receiver.user.username }}
+    </li>
+    <li class="list-group-item">
+      <strong>Комментарий:</strong><br>{{ proposal.comment|linebreaks }}
+    </li>
+    <li class="list-group-item">
+      <strong>Статус:</strong>
+      {% if proposal.status == 'waiting' %}<span class="badge bg-warning">Ожидает</span>{% endif %}
+      {% if proposal.status == 'accepted' %}<span class="badge bg-success">Принята</span>{% endif %}
+      {% if proposal.status == 'rejected' %}<span class="badge bg-danger">Отклонена</span>{% endif %}
+    </li>
+    <li class="list-group-item">
+      <strong>Дата:</strong> {{ proposal.created_at|date:"d.m.Y H:i" }}
+    </li>
+  </ul>
+
+  {% if user == proposal.ad_receiver.user and proposal.status == 'waiting' %}
+  <form action="{% url 'proposal_update_status' proposal.pk 'accept' %}" method="post">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-success">Принять</button>
+  </form>
+  <form action="{% url 'proposal_update_status' proposal.pk 'reject' %}" method="post">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-danger">Отклонить</button>
+  </form>
+  {% endif %}
+
+  <a href="{% url 'proposal_list' %}" class="btn btn-link mt-3">← Назад к списку</a>
+</div>
+{% endblock %}
